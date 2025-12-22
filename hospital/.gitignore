@@ -1,0 +1,72 @@
+# ===============================
+# Python
+# ===============================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# ===============================
+# Virtual Environment
+# ===============================
+venv/
+env/
+.venv/
+
+# ===============================
+# Django
+# ===============================
+*.log
+db.sqlite3
+media/
+staticfiles/
+static/
+
+# Django migrations (optional – usually KEEP migrations)
+# **/migrations/
+# **/migrations/__pycache__/
+
+# ===============================
+# Environment Variables
+# ===============================
+.env
+.env.*
+*.env
+
+# ===============================
+# IDE / Editor
+# ===============================
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ===============================
+# OS files
+# ===============================
+.DS_Store
+Thumbs.db
+
+# ===============================
+# Pytest / Coverage
+# ===============================
+.pytest_cache/
+.coverage
+htmlcov/
+
+# ===============================
+# Jupyter
+# ===============================
+.ipynb_checkpoints/
+
+# ===============================
+# Node (if frontend exists)
+# ===============================
+node_modules/
+
+# ===============================
+# Build / Dist
+# ===============================
+build/
+dist/
+*.egg-info/

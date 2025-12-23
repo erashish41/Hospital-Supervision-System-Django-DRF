@@ -1,28 +1,26 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractUser
 from utils.models import BaseMixin
+from management.constants import GENDER, STATUS, PAID, ROLE_CHOICES
 
 # Create your models here.
+    
 
-GENDER = (
-    ('M', 'Male'),
-    ('F', 'Female'),
-    ('O', 'Other'),
-)
+class CustomUser(AbstractUser):
 
-STATUS = (
-    ('pending', 'Pending'),
-    ('confirmed', 'Confirmed'),
-    ('cancelled', 'Cancelled'),
-)
-
-PAID = (
-    ('yes', 'Yes'),
-    ('no', 'No'),
-)
+    
+    email = models.EmailField(unique=True)
+    phone = models.CharField(max_length=15, unique=True)
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES)
+    gender = models.CharField(max_length=1, choices=GENDER)
+    address = models.CharField(max_length=200)
+    blood_group = models.CharField(max_length=5, null=True, blank=True)
+    date_of_birth = models.DateField(null=True, blank=True)
+    
 
 class Hospital(BaseMixin):
     name = models.CharField(max_length=100)
+    email = models.EmailField(unique=True)
     address = models.CharField(max_length= 200)
     phone = models.CharField(max_length=15)
     
@@ -32,70 +30,63 @@ class Hospital(BaseMixin):
     
 class Department(BaseMixin):
     name = models.CharField(max_length=100)
-    hospital = models.ForeignKey("Hospital", on_delete=models.CASCADE)
+    hospital = models.ForeignKey("Hospital", on_delete=models.CASCADE, related_name="departments")
     
     def __str__(self):
         return f"{self.name}"
 
 class Doctor(BaseMixin):
-    name = models.CharField(max_length=150)
-    email = models.EmailField()
-    address = models.CharField(max_length=200)
+    user = models.OneToOneField(CustomUser,on_delete=models.CASCADE, related_name="doctor_profile")
     specialization = models.CharField(max_length=100)
-    phone = models.CharField(max_length=15)
-    hospital = models.ManyToManyField("Hospital", related_name="hospital_doctor")
     department = models.ForeignKey("Department", on_delete=models.CASCADE)
+    license_number = models.CharField(max_length=50, unique=True)
     
     def __str__(self):
-        return f"{self.name} - {self.specialization}"
+        return f"{self.user.get_full_name()} - {self.specialization}"
     
     
 class Patient(BaseMixin):
-    name = models.CharField(max_length=150)
-    email = models.EmailField()
-    address = models.CharField(max_length=200)
-    phone = models.CharField(max_length=15)
-    gender = models.CharField(choices=GENDER, max_length=1)
-    hospital = models.ManyToManyField("Hospital", related_name="hospital_patient")
-    doctor = models.ManyToManyField("Doctor", related_name="doctor_patient")
+    user = models.OneToOneField(CustomUser,on_delete=models.CASCADE, related_name="patient_profile")
     
     def __str__(self):
-        return f"{self.name} - {self.gender}"
+        return f"{self.user.get_full_name()}"
 
 
 class Appointment(BaseMixin):
-    patient = models.ForeignKey("Patient",on_delete=models.CASCADE)
-    date = models.DateTimeField(auto_now_add=True)
+    patient = models.ForeignKey("Patient",on_delete=models.CASCADE, related_name="patient_appointments")
+    appointment_date = models.DateTimeField()
     hospital = models.ForeignKey("Hospital", on_delete=models.CASCADE)
-    doctor = models.ForeignKey("Doctor", on_delete=models.CASCADE)
-    status = models.CharField(choices=STATUS, max_length=20,)
+    doctor = models.ForeignKey("Doctor", on_delete=models.CASCADE, related_name="doctor_appointments")
+    status = models.CharField(choices=STATUS, max_length=20,default="pending")
     
     def __str__(self):
-        return f"{self.patient.name} - {self.date}"
+        return f"{self.patient.user.username} - {self.appointment_date}"
     
 class MedicalRecord(BaseMixin):
-    patient = models.ForeignKey("Patient",on_delete=models.CASCADE)
-    doctor = models.ForeignKey("Doctor", on_delete=models.CASCADE, related_name="medical_records")
+    patient = models.ForeignKey("Patient",on_delete=models.CASCADE, related_name="patient_medical")
+    doctor = models.ForeignKey("Doctor", on_delete=models.CASCADE, related_name="doctor_medical")
     diagnosis = models.TextField()
+    appointment = models.ForeignKey("Appointment", on_delete=models.CASCADE, related_name="medical_appointment")
+
     
     def __str__(self):
-        return f"{self.patient.name} - {self.diagnosis}"
+        return f"{self.patient.user.get_full_name()} - {self.diagnosis}"
     
 
 class Prescription(BaseMixin):
-    appointment = models.ForeignKey("Appointment", on_delete=models.CharField)
+    appointment = models.ForeignKey("Appointment", on_delete=models.CASCADE)
     patient = models.ForeignKey("Patient",on_delete=models.CASCADE)
-    doctor = models.ManyToManyField("Doctor", related_name="prescriptions")
+    doctor = models.ForeignKey("Doctor", on_delete=models.CASCADE)
     medicine = models.TextField()
     
     def __str__(self):
-        return f"{self.appointment.patient.name} - {self.medicine}"
+        return f"{self.appointment.patient.user.get_full_name()} - {self.medicine}"
     
 
 class Billing(BaseMixin):
-    appointment = models.ForeignKey("Appointment", on_delete=models.CASCADE)
+    appointment = models.OneToOneField("Appointment", on_delete=models.CASCADE)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
-    paid = models.CharField(choices=PAID, max_length=3)
+    paid = models.CharField(choices=PAID, max_length=3, default="no")
     
     def __str__(self):
         return f"{self.amount} - {self.paid}"

@@ -4,18 +4,18 @@ from utils.models import BaseMixin
 from management.constants import GENDER, STATUS, PAID, ROLE_CHOICES
 
 # Create your models here.
-    
 
 class CustomUser(AbstractUser):
-
-    
-    email = models.EmailField(unique=True)
+    email = models.EmailField(unique=True, blank=True, null=True)
     phone = models.CharField(max_length=15, unique=True)
     role = models.CharField(max_length=20, choices=ROLE_CHOICES)
     gender = models.CharField(max_length=1, choices=GENDER)
     address = models.CharField(max_length=200)
     blood_group = models.CharField(max_length=5, null=True, blank=True)
     date_of_birth = models.DateField(null=True, blank=True)
+
+    REQUIRED_FIELDS = []
+
     
 
 class Hospital(BaseMixin):

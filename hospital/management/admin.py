@@ -22,7 +22,7 @@ class CustomUserAdmin(UserAdmin):
 @admin.register(Hospital)
 class HospitalAdmin(admin.ModelAdmin):
     list_display = (
-        'name', 'email', 'address', 'phone',
+        'id','name', 'email', 'address', 'phone',
     )
     list_filter = ('name', 'address')
     

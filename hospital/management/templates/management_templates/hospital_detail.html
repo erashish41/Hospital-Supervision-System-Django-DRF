@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Hospital List{% endblock %}
+{% block content%} 
+
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                    <div class="card" style="width: 18rem;">
+                        <div class="card-body">
+                            <h5 class="card-title">Name: {{hospital.name}}</h5>
+                            <p class="card-title">email: {{hospital.email}}</p>
+                            <p class="card-title">address: {{hospital.address}}</p>
+                            <p class="card-title">phone: {{hospital.phone}}</p>
+                        </div>
+                    </div>
+                </div>
+        </div>
+    </div>
+
+{% endblock%}

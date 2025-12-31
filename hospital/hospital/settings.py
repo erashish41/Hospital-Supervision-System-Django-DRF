@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'utils',
     'crispy_forms',
     'crispy_bootstrap5',
+    'user_auth'
 ]
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
@@ -61,6 +62,10 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'hospital.urls'
 
 AUTH_USER_MODEL = 'management.CustomUser'
+
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'hospital_list'
+LOGOUT_REDIRECT_URL = 'signin'
 
 TEMPLATES = [
     {

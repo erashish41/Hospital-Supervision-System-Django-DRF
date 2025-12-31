@@ -4,6 +4,12 @@ from management.models import (
     Appointment, MedicalRecord, Prescription, Billing
 )
 
+
+class CustomUserForm(forms.ModelForm):
+    class Meta:
+        model = CustomUser
+        fields = ["username", "first_name", "last_name", "email"]
+
 class HospitalForm(forms.ModelForm):
     class Meta:
         model = Hospital

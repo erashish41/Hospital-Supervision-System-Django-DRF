@@ -9,10 +9,13 @@ from management.models import (
 )
 from management.forms import HospitalForm
 from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
+
 
 # Create your views here.
 
-class HospitalListView(ListView):
+# for Hospital
+class HospitalListView(LoginRequiredMixin,ListView):
     model = Hospital
     context_object_name = "hospitals"
     template_name = "hospital_template/hospital_list.html"
@@ -24,7 +27,7 @@ class HospitalListView(ListView):
         return context
     
     
-class HospitalDetailView(DetailView):
+class HospitalDetailView(LoginRequiredMixin,DetailView):
     model = Hospital
     context_object_name = "hospital"
     template_name = "hospital_template/hospital_detail.html"
@@ -32,10 +35,13 @@ class HospitalDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["form"] = HospitalForm(instance=self.object)
+        context["department_count"] = self.object.departments.count()
+        context["doctor_count"] = Doctor.objects.filter(department__hospital=self.object).count()
+        context["patient_count"] = Patient.objects.filter(patient_appointments__hospital=self.object).distinct().count()
         return context
     
     
-class HospitalCreateView(CreateView):
+class HospitalCreateView(LoginRequiredMixin,CreateView):
     model = Hospital
     form_class = HospitalForm
     success_url = reverse_lazy("hospital_list")
@@ -53,7 +59,7 @@ class HospitalCreateView(CreateView):
 
     
     
-class HospitalUpdateView(UpdateView):
+class HospitalUpdateView(LoginRequiredMixin,UpdateView):
     model = Hospital
     form_class = HospitalForm
     success_url = reverse_lazy("hospital_list")
@@ -70,7 +76,7 @@ class HospitalUpdateView(UpdateView):
         return super().form_invalid(form)
     
         
-class HospitalDeleteView(DeleteView):
+class HospitalDeleteView(LoginRequiredMixin,DeleteView):
     model = Hospital
     success_url = reverse_lazy("hospital_list")
     
@@ -79,3 +85,10 @@ class HospitalDeleteView(DeleteView):
         return super().delete(request, *args, **kwargs)
     
     
+
+# for Department
+class DepartmentListView(LoginRequiredMixin, ListView):
+    model = Department
+    template_name = "department_template/department_list.html"
+    paginate_by = 5
+    context_object_name = "departments"
